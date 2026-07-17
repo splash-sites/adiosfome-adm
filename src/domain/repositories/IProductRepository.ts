@@ -1,4 +1,7 @@
-import { Category, Product } from '../entities/Product';
+import { Category, Product, ProductVariant } from '../entities/Product';
+
+export type VariantInput = Omit<ProductVariant, 'id' | 'productId'>;
+export type ProductInput = Omit<Product, 'id' | 'variants'> & { variants: VariantInput[] };
 
 export interface IProductRepository {
   listCategories(restaurantId: string): Promise<Category[]>;
@@ -7,7 +10,10 @@ export interface IProductRepository {
   deleteCategory(id: string): Promise<void>;
 
   listProducts(restaurantId: string): Promise<Product[]>;
-  createProduct(product: Omit<Product, 'id'>): Promise<Product>;
-  updateProduct(id: string, data: Partial<Omit<Product, 'id' | 'restaurantId'>>): Promise<void>;
+  createProduct(product: ProductInput): Promise<Product>;
+  updateProduct(
+    id: string,
+    data: Partial<Omit<ProductInput, 'restaurantId'>>
+  ): Promise<void>;
   deleteProduct(id: string): Promise<void>;
 }
