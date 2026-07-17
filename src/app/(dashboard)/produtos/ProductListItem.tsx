@@ -20,13 +20,19 @@ export function ProductListItem({
 
   return (
     <div className="flex items-center justify-between rounded border p-3">
-      <div>
-        <p className="font-medium">
-          {product.name} {!product.active && <span className="text-xs text-gray-500">(inativo)</span>}
-        </p>
-        <p className="text-sm text-gray-600">
-          {product.variants.map((v) => `${v.name}: R$ ${v.price.toFixed(2)}`).join(' | ')}
-        </p>
+      <div className="flex items-center gap-3">
+        {product.imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={product.imageUrl} alt="" className="h-12 w-12 rounded object-cover" />
+        )}
+        <div>
+          <p className="font-medium">
+            {product.name} {!product.active && <span className="text-xs text-gray-500">(inativo)</span>}
+          </p>
+          <p className="text-sm text-gray-600">
+            {product.variants.map((v) => `${v.name}: R$ ${v.price.toFixed(2)}`).join(' | ')}
+          </p>
+        </div>
       </div>
       <div className="flex items-center gap-3 text-sm">
         <button type="button" onClick={() => setEditing(true)} className="underline">

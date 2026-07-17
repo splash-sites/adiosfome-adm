@@ -45,6 +45,17 @@ export function ProductForm({
     }
   }, [state, pending, onDone]);
 
+  const [preview, setPreview] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setPreview(file ? URL.createObjectURL(file) : null);
+    if (file) setRemoveImage(false);
+  };
+
+  const currentImage = removeImage ? null : preview ?? product?.imageUrl ?? null;
+
   return (
     <form
       action={formAction}
@@ -54,7 +65,34 @@ export function ProductForm({
       className="flex flex-col gap-4 rounded border p-4"
     >
       {isEdit && <input type="hidden" name="productId" value={product!.id} />}
+      {isEdit && <input type="hidden" name="currentImageUrl" value={product?.imageUrl ?? ''} />}
       <input type="hidden" name="variants" value={variantsJson} />
+
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-medium">Imagem</p>
+        {currentImage && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={currentImage} alt="" className="h-24 w-24 rounded object-cover" />
+        )}
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="text-sm"
+        />
+        {isEdit && product?.imageUrl && !preview && (
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="removeImage"
+              checked={removeImage}
+              onChange={(e) => setRemoveImage(e.target.checked)}
+            />
+            Remover imagem atual
+          </label>
+        )}
+      </div>
 
       <label className="flex flex-col gap-1 text-sm">
         Nome do produto

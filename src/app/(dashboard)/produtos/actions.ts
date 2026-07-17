@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/serverClient';
 import { SupabaseRestaurantRepository } from '@/infrastructure/supabase/SupabaseRestaurantRepository';
 import { SupabaseProductRepository } from '@/infrastructure/supabase/SupabaseProductRepository';
@@ -13,6 +14,38 @@ import { UpdateProduct } from '@/application/use-cases/UpdateProduct';
 import { DeleteProduct } from '@/application/use-cases/DeleteProduct';
 
 export type FormState = { error: string | null };
+
+const IMAGE_BUCKET = 'products';
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+async function uploadProductImage(
+  supabase: SupabaseClient,
+  restaurantId: string,
+  file: File
+): Promise<string> {
+  if (file.size > MAX_IMAGE_BYTES) {
+    throw new Error('Imagem muito grande (maximo 5MB)');
+  }
+  const ext = file.name.split('.').pop() || 'jpg';
+  const path = `${restaurantId}/${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await supabase.storage.from(IMAGE_BUCKET).upload(path, file, {
+    contentType: file.type || undefined,
+  });
+  if (error) throw new Error(`Falha no upload da imagem: ${error.message}`);
+
+  const { data } = supabase.storage.from(IMAGE_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function deleteProductImage(supabase: SupabaseClient, imageUrl: string | null) {
+  if (!imageUrl) return;
+  const marker = `/object/public/${IMAGE_BUCKET}/`;
+  const index = imageUrl.indexOf(marker);
+  if (index === -1) return;
+  const path = imageUrl.slice(index + marker.length);
+  await supabase.storage.from(IMAGE_BUCKET).remove([path]);
+}
 
 async function requireOwnRestaurant() {
   const supabase = await createSupabaseServerClient();
@@ -74,12 +107,18 @@ export async function createProductAction(
   const { supabase, restaurant } = await requireOwnRestaurant();
 
   try {
+    const imageFile = formData.get('image');
+    const imageUrl =
+      imageFile instanceof File && imageFile.size > 0
+        ? await uploadProductImage(supabase, restaurant.id, imageFile)
+        : null;
+
     await new CreateProduct(new SupabaseProductRepository(supabase)).execute({
       restaurantId: restaurant.id,
       categoryId: String(formData.get('categoryId') ?? ''),
       name: String(formData.get('name') ?? '').trim(),
       description: String(formData.get('description') ?? '').trim(),
-      imageUrl: null,
+      imageUrl,
       active: formData.get('active') === 'on',
       variants: parseVariants(formData.get('variants')),
     });
@@ -95,16 +134,30 @@ export async function updateProductAction(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const { supabase } = await requireOwnRestaurant();
+  const { supabase, restaurant } = await requireOwnRestaurant();
   const productId = String(formData.get('productId') ?? '');
+  const currentImageUrl = String(formData.get('currentImageUrl') ?? '') || null;
+  const removeImage = formData.get('removeImage') === 'on';
 
   try {
+    const imageFile = formData.get('image');
+    let imageUrl: string | null | undefined = undefined;
+
+    if (imageFile instanceof File && imageFile.size > 0) {
+      imageUrl = await uploadProductImage(supabase, restaurant.id, imageFile);
+      await deleteProductImage(supabase, currentImageUrl);
+    } else if (removeImage) {
+      await deleteProductImage(supabase, currentImageUrl);
+      imageUrl = null;
+    }
+
     await new UpdateProduct(new SupabaseProductRepository(supabase)).execute(productId, {
       categoryId: String(formData.get('categoryId') ?? ''),
       name: String(formData.get('name') ?? '').trim(),
       description: String(formData.get('description') ?? '').trim(),
       active: formData.get('active') === 'on',
       variants: parseVariants(formData.get('variants')),
+      ...(imageUrl !== undefined ? { imageUrl } : {}),
     });
   } catch (e) {
     return { error: (e as Error).message };
