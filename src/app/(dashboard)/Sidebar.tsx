@@ -19,11 +19,11 @@ export function Sidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col justify-between bg-black px-4 py-6 text-white">
+    <aside className="flex h-screen w-64 shrink-0 flex-col justify-between border-r border-black/8 bg-white px-4 py-6 text-black">
       <div className="flex flex-col gap-8">
         <div className="px-2">
           <p className="text-lg font-semibold leading-tight">{restaurantName}</p>
-          <p className="text-sm text-white/45">/{restaurantSlug}</p>
+          <p className="text-sm text-black/40">/{restaurantSlug}</p>
         </div>
 
         <nav className="flex flex-col gap-1">
@@ -34,7 +34,7 @@ export function Sidebar({
                 key={item.href}
                 href={item.href}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  active ? 'bg-primary text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                  active ? 'bg-primary text-white' : 'text-black/60 hover:bg-black/5 hover:text-black'
                 }`}
               >
                 {item.label}
@@ -44,13 +44,13 @@ export function Sidebar({
         </nav>
       </div>
 
-      <div className="flex flex-col gap-1 border-t border-white/10 pt-4">
+      <div className="flex flex-col gap-1 border-t border-black/8 pt-4">
         <Link
           href="/configuracoes"
           className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
             pathname?.startsWith('/configuracoes')
               ? 'bg-primary text-white'
-              : 'text-white/70 hover:bg-white/5 hover:text-white'
+              : 'text-black/60 hover:bg-black/5 hover:text-black'
           }`}
         >
           Configuracoes
@@ -58,7 +58,7 @@ export function Sidebar({
         <form action={logout}>
           <button
             type="submit"
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-white/70 transition hover:bg-white/5 hover:text-white"
+            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-black/60 transition hover:bg-black/5 hover:text-black"
           >
             Sair
           </button>
