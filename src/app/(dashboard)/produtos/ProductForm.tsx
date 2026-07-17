@@ -3,6 +3,8 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { createProductAction, updateProductAction, type FormState } from './actions';
 import type { Category, Product } from '@/domain/entities/Product';
+import { Button } from '@/components/ui/Button';
+import { cardClass, inputClass, labelClass } from '@/components/ui/styles';
 
 const initialState: FormState = { error: null };
 
@@ -62,66 +64,63 @@ export function ProductForm({
       onSubmit={() => {
         submittedRef.current = true;
       }}
-      className="flex flex-col gap-4 rounded border p-4"
+      className={`${cardClass} flex flex-col gap-4 p-5`}
     >
       {isEdit && <input type="hidden" name="productId" value={product!.id} />}
       {isEdit && <input type="hidden" name="currentImageUrl" value={product?.imageUrl ?? ''} />}
       <input type="hidden" name="variants" value={variantsJson} />
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium">Imagem</p>
-        {currentImage && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={currentImage} alt="" className="h-24 w-24 rounded object-cover" />
-        )}
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="text-sm"
-        />
-        {isEdit && product?.imageUrl && !preview && (
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              name="removeImage"
-              checked={removeImage}
-              onChange={(e) => setRemoveImage(e.target.checked)}
+        <p className="text-sm font-medium text-black/70">Imagem</p>
+        <div className="flex items-center gap-3">
+          {currentImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={currentImage}
+              alt=""
+              className="h-20 w-20 rounded-xl border border-black/8 object-cover"
             />
-            Remover imagem atual
-          </label>
-        )}
+          ) : (
+            <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-black/15 text-xs text-black/30">
+              sem foto
+            </div>
+          )}
+          <div className="flex flex-col gap-1.5">
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="text-sm text-black/60 file:mr-3 file:rounded-lg file:border-0 file:bg-black/5 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-black hover:file:bg-black/10"
+            />
+            {isEdit && product?.imageUrl && !preview && (
+              <label className="flex items-center gap-2 text-sm text-black/60">
+                <input
+                  type="checkbox"
+                  name="removeImage"
+                  checked={removeImage}
+                  onChange={(e) => setRemoveImage(e.target.checked)}
+                />
+                Remover imagem atual
+              </label>
+            )}
+          </div>
+        </div>
       </div>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Nome do produto
-        <input
-          name="name"
-          type="text"
-          required
-          defaultValue={product?.name}
-          className="rounded border px-3 py-2"
-        />
+        <input name="name" type="text" required defaultValue={product?.name} className={inputClass} />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Descricao
-        <textarea
-          name="description"
-          defaultValue={product?.description}
-          className="rounded border px-3 py-2"
-        />
+        <textarea name="description" defaultValue={product?.description} className={inputClass} />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Categoria
-        <select
-          name="categoryId"
-          required
-          defaultValue={product?.categoryId}
-          className="rounded border px-3 py-2"
-        >
+        <select name="categoryId" required defaultValue={product?.categoryId} className={inputClass}>
           <option value="" disabled>
             Escolhe uma categoria
           </option>
@@ -133,13 +132,13 @@ export function ProductForm({
         </select>
       </label>
 
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-sm text-black/70">
         <input type="checkbox" name="active" defaultChecked={product?.active ?? true} />
         Ativo (visivel no cardapio)
       </label>
 
       <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium">Sabores/variacoes</p>
+        <p className="text-sm font-medium text-black/70">Sabores/variacoes</p>
         {variants.map((v, i) => (
           <div key={i} className="flex items-center gap-2">
             <input
@@ -148,7 +147,7 @@ export function ProductForm({
               value={v.name}
               onChange={(e) => updateVariant(i, 'name', e.target.value)}
               required
-              className="flex-1 rounded border px-3 py-2 text-sm"
+              className={`flex-1 ${inputClass}`}
             />
             <input
               type="number"
@@ -158,33 +157,25 @@ export function ProductForm({
               value={v.price}
               onChange={(e) => updateVariant(i, 'price', e.target.value)}
               required
-              className="w-28 rounded border px-3 py-2 text-sm"
+              className={`w-28 ${inputClass}`}
             />
             {variants.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeVariant(i)}
-                className="text-sm text-red-600 underline"
-              >
+              <Button type="button" variant="ghost" onClick={() => removeVariant(i)}>
                 Remover
-              </button>
+              </Button>
             )}
           </div>
         ))}
-        <button type="button" onClick={addVariant} className="self-start text-sm underline">
+        <Button type="button" variant="ghost" onClick={addVariant} className="self-start">
           + adicionar variante
-        </button>
+        </Button>
       </div>
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="self-start rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending} className="self-start">
         {pending ? 'Aguarda...' : isEdit ? 'Salvar' : 'Criar produto'}
-      </button>
+      </Button>
     </form>
   );
 }

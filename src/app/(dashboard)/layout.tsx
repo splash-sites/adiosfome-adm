@@ -1,9 +1,8 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/infrastructure/supabase/serverClient';
 import { SupabaseRestaurantRepository } from '@/infrastructure/supabase/SupabaseRestaurantRepository';
 import { GetOwnRestaurant } from '@/application/use-cases/GetOwnRestaurant';
-import { logout } from './actions';
+import { Sidebar } from './Sidebar';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createSupabaseServerClient();
@@ -22,25 +21,23 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect('/onboarding');
   }
 
+  const email = user.email ?? '';
+  const initial = email.charAt(0).toUpperCase() || '?';
+
   return (
-    <div className="min-h-screen">
-      <header className="flex items-center justify-between border-b px-6 py-4">
-        <div>
-          <p className="font-semibold">{restaurant.name}</p>
-          <p className="text-xs text-gray-500">/{restaurant.slug}</p>
-        </div>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/pedidos">Pedidos</Link>
-          <Link href="/produtos">Produtos</Link>
-          <Link href="/configuracoes">Configuracoes</Link>
-          <form action={logout}>
-            <button type="submit" className="underline">
-              Sair
-            </button>
-          </form>
-        </nav>
-      </header>
-      <main className="p-6">{children}</main>
+    <div className="flex min-h-screen bg-[#f7f7fb]">
+      <Sidebar restaurantName={restaurant.name} restaurantSlug={restaurant.slug} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-end border-b border-black/8 bg-white px-8 py-4">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
+              {initial}
+            </span>
+            <span className="text-sm font-medium text-black/80">{email}</span>
+          </div>
+        </header>
+        <main className="flex-1 overflow-x-hidden px-8 py-8">{children}</main>
+      </div>
     </div>
   );
 }

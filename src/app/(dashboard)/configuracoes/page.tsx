@@ -17,10 +17,10 @@ export default async function ConfiguracoesPage() {
   if (!restaurant) redirect('/onboarding');
 
   return (
-    <div className="flex max-w-md flex-col gap-6">
+    <div className="flex max-w-xl flex-col gap-6">
       <div>
-        <h1 className="text-lg font-semibold">Configuracoes</h1>
-        <p className="text-sm text-gray-600">Dados do restaurante, visiveis no cardapio publico.</p>
+        <h1 className="text-2xl font-semibold text-black">Configuracoes</h1>
+        <p className="text-sm text-black/50">Dados do restaurante, visiveis no cardapio publico.</p>
       </div>
       <ConfiguracoesForm restaurant={restaurant} />
     </div>

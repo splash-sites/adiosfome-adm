@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/infrastructure/supabase/serverClie
 import { SupabaseRestaurantRepository } from '@/infrastructure/supabase/SupabaseRestaurantRepository';
 import { GetOwnRestaurant } from '@/application/use-cases/GetOwnRestaurant';
 import { OnboardingForm } from './OnboardingForm';
+import { cardClass } from '@/components/ui/styles';
 
 export default async function OnboardingPage() {
   const supabase = await createSupabaseServerClient();
@@ -22,14 +23,17 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 p-6">
-      <div>
-        <h1 className="text-xl font-semibold">Cria teu restaurante</h1>
-        <p className="text-sm text-gray-600">
-          Esses dados aparecem no teu cardapio publico. Da pra editar depois.
-        </p>
+    <main className="flex min-h-screen flex-1 items-center justify-center bg-[#f7f7fb] p-6">
+      <div className={`${cardClass} flex w-full max-w-md flex-col gap-6 p-8`}>
+        <div>
+          <p className="text-sm font-medium text-primary">Painel do restaurante</p>
+          <h1 className="mt-1 text-2xl font-semibold text-black">Cria teu restaurante</h1>
+          <p className="mt-1 text-sm text-black/50">
+            Esses dados aparecem no teu cardapio publico. Da pra editar depois.
+          </p>
+        </div>
+        <OnboardingForm />
       </div>
-      <OnboardingForm />
     </main>
   );
 }

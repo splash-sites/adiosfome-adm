@@ -3,6 +3,8 @@
 import { useActionState, useState } from 'react';
 import { updateRestaurantAction, type FormState } from './actions';
 import type { Restaurant } from '@/domain/entities/Restaurant';
+import { Button } from '@/components/ui/Button';
+import { cardClass, inputClass, labelClass } from '@/components/ui/styles';
 
 const initialState: FormState = { error: null, success: false };
 
@@ -35,21 +37,15 @@ export function ConfiguracoesForm({ restaurant }: { restaurant: Restaurant }) {
   );
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form action={action} className={`${cardClass} flex flex-col gap-5 p-6`}>
       <input type="hidden" name="openingHours" value={openingHoursJson} />
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Nome do restaurante
-        <input
-          name="name"
-          type="text"
-          required
-          defaultValue={restaurant.name}
-          className="rounded border px-3 py-2"
-        />
+        <input name="name" type="text" required defaultValue={restaurant.name} className={inputClass} />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Slug (usado na URL do cardapio)
         <input
           name="slug"
@@ -57,33 +53,21 @@ export function ConfiguracoesForm({ restaurant }: { restaurant: Restaurant }) {
           required
           pattern="[a-z0-9]+(-[a-z0-9]+)*"
           defaultValue={restaurant.slug}
-          className="rounded border px-3 py-2"
+          className={inputClass}
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Endereco
-        <input
-          name="address"
-          type="text"
-          required
-          defaultValue={restaurant.address}
-          className="rounded border px-3 py-2"
-        />
+        <input name="address" type="text" required defaultValue={restaurant.address} className={inputClass} />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Telefone
-        <input
-          name="phone"
-          type="tel"
-          required
-          defaultValue={restaurant.phone}
-          className="rounded border px-3 py-2"
-        />
+        <input name="phone" type="tel" required defaultValue={restaurant.phone} className={inputClass} />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Taxa de entrega (R$)
         <input
           name="deliveryFee"
@@ -92,17 +76,17 @@ export function ConfiguracoesForm({ restaurant }: { restaurant: Restaurant }) {
           min="0"
           required
           defaultValue={restaurant.deliveryFee}
-          className="rounded border px-3 py-2"
+          className={inputClass}
         />
       </label>
 
-      <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium">Horario de funcionamento</p>
+      <div className="flex flex-col gap-2.5 border-t border-black/6 pt-5">
+        <p className="text-sm font-medium text-black/70">Horario de funcionamento</p>
         {DAY_LABELS.map((label, day) => {
           const row = dayRows[day];
           return (
-            <div key={day} className="flex items-center gap-2 text-sm">
-              <label className="flex w-28 items-center gap-2">
+            <div key={day} className="flex items-center gap-3 text-sm">
+              <label className="flex w-28 items-center gap-2 text-black/70">
                 <input
                   type="checkbox"
                   checked={row.enabled}
@@ -115,15 +99,15 @@ export function ConfiguracoesForm({ restaurant }: { restaurant: Restaurant }) {
                 value={row.opensAt}
                 disabled={!row.enabled}
                 onChange={(e) => updateDay(day, 'opensAt', e.target.value)}
-                className="rounded border px-2 py-1 disabled:opacity-40"
+                className={`${inputClass} py-1.5`}
               />
-              <span>ate</span>
+              <span className="text-black/40">ate</span>
               <input
                 type="time"
                 value={row.closesAt}
                 disabled={!row.enabled}
                 onChange={(e) => updateDay(day, 'closesAt', e.target.value)}
-                className="rounded border px-2 py-1 disabled:opacity-40"
+                className={`${inputClass} py-1.5`}
               />
             </div>
           );
@@ -131,15 +115,11 @@ export function ConfiguracoesForm({ restaurant }: { restaurant: Restaurant }) {
       </div>
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-      {state.success && <p className="text-sm text-green-700">Salvo!</p>}
+      {state.success && <p className="text-sm text-emerald-600">Salvo!</p>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="self-start rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending} className="self-start">
         {pending ? 'Salvando...' : 'Salvar'}
-      </button>
+      </Button>
     </form>
   );
 }

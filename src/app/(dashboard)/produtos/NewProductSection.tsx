@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ProductForm } from './ProductForm';
+import { Button } from '@/components/ui/Button';
 import type { Category } from '@/domain/entities/Product';
 
 export function NewProductSection({ categories }: { categories: Category[] }) {
@@ -9,13 +10,9 @@ export function NewProductSection({ categories }: { categories: Category[] }) {
 
   if (!open) {
     return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="self-start rounded bg-black px-4 py-2 text-sm text-white"
-      >
+      <Button type="button" onClick={() => setOpen(true)} className="self-start">
         + Novo produto
-      </button>
+      </Button>
     );
   }
 

@@ -9,6 +9,7 @@ import { CategoryForm } from './CategoryForm';
 import { NewProductSection } from './NewProductSection';
 import { ProductListItem } from './ProductListItem';
 import { deleteCategoryAction } from './actions';
+import { cardClass, pillClass } from '@/components/ui/styles';
 
 export default async function ProdutosPage() {
   const supabase = await createSupabaseServerClient();
@@ -31,22 +32,22 @@ export default async function ProdutosPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-lg font-semibold">Produtos</h1>
-        <p className="text-sm text-gray-600">Gerencia categorias, produtos e sabores/variacoes.</p>
+        <h1 className="text-2xl font-semibold text-black">Produtos</h1>
+        <p className="text-sm text-black/50">Gerencia categorias, produtos e sabores/variacoes.</p>
       </div>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold uppercase text-gray-500">Categorias</h2>
+      <section className={`${cardClass} flex flex-col gap-3 p-5`}>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-black/40">Categorias</h2>
         {categories.length === 0 && (
-          <p className="text-sm text-gray-500">Nenhuma categoria ainda.</p>
+          <p className="text-sm text-black/40">Nenhuma categoria ainda.</p>
         )}
         <ul className="flex flex-wrap gap-2">
           {categories.map((c) => (
-            <li key={c.id} className="flex items-center gap-2 rounded border px-3 py-1 text-sm">
+            <li key={c.id} className={pillClass}>
               {c.name}
               <form action={deleteCategoryAction.bind(null, c.id)}>
-                <button type="submit" className="text-red-600 underline">
-                  x
+                <button type="submit" className="text-black/30 hover:text-red-600">
+                  ✕
                 </button>
               </form>
             </li>
@@ -56,16 +57,16 @@ export default async function ProdutosPage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold uppercase text-gray-500">Produtos</h2>
-        {products.length === 0 && <p className="text-sm text-gray-500">Nenhum produto ainda.</p>}
-        <div className="flex flex-col gap-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-black/40">Produtos</h2>
+        {products.length === 0 && <p className="text-sm text-black/40">Nenhum produto ainda.</p>}
+        <div className="flex flex-col gap-3">
           {products.map((p) => (
             <ProductListItem key={p.id} product={p} categories={categories} />
           ))}
         </div>
 
         {categories.length === 0 ? (
-          <p className="text-sm text-gray-500">Cria uma categoria antes de adicionar produtos.</p>
+          <p className="text-sm text-black/40">Cria uma categoria antes de adicionar produtos.</p>
         ) : (
           <NewProductSection categories={categories} />
         )}

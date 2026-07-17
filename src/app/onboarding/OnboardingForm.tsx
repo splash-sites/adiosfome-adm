@@ -2,6 +2,8 @@
 
 import { useActionState } from 'react';
 import { createRestaurant, type OnboardingState } from './actions';
+import { Button } from '@/components/ui/Button';
+import { inputClass, labelClass } from '@/components/ui/styles';
 
 const initialState: OnboardingState = { error: null };
 
@@ -10,11 +12,11 @@ export function OnboardingForm() {
 
   return (
     <form action={action} className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Nome do restaurante
-        <input name="name" type="text" required className="rounded border px-3 py-2" />
+        <input name="name" type="text" required className={inputClass} />
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Slug (usado na URL do cardapio)
         <input
           name="slug"
@@ -22,18 +24,18 @@ export function OnboardingForm() {
           required
           pattern="[a-z0-9]+(-[a-z0-9]+)*"
           placeholder="ex: pizzaria-do-joao"
-          className="rounded border px-3 py-2"
+          className={inputClass}
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Endereco
-        <input name="address" type="text" required className="rounded border px-3 py-2" />
+        <input name="address" type="text" required className={inputClass} />
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Telefone
-        <input name="phone" type="tel" required className="rounded border px-3 py-2" />
+        <input name="phone" type="tel" required className={inputClass} />
       </label>
-      <label className="flex flex-col gap-1 text-sm">
+      <label className={labelClass}>
         Taxa de entrega (R$)
         <input
           name="deliveryFee"
@@ -42,19 +44,15 @@ export function OnboardingForm() {
           min="0"
           defaultValue={0}
           required
-          className="rounded border px-3 py-2"
+          className={inputClass}
         />
       </label>
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded bg-black px-3 py-2 text-white disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending} className="mt-1">
         {pending ? 'Aguarda...' : 'Criar restaurante'}
-      </button>
+      </Button>
     </form>
   );
 }

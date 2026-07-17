@@ -2,6 +2,8 @@
 
 import { useActionState, useState } from 'react';
 import { login, signup, type AuthActionState } from './actions';
+import { Button } from '@/components/ui/Button';
+import { cardClass, inputClass, labelClass } from '@/components/ui/styles';
 
 const initialState: AuthActionState = { error: null, info: null };
 
@@ -15,51 +17,42 @@ export default function LoginPage() {
   const action = mode === 'login' ? loginAction : signupAction;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 p-6">
-      <h1 className="text-xl font-semibold">
-        {mode === 'login' ? 'Entrar' : 'Criar conta'}
-      </h1>
+    <main className="flex min-h-screen flex-1 items-center justify-center bg-[#f7f7fb] p-6">
+      <div className={`${cardClass} flex w-full max-w-sm flex-col gap-6 p-8`}>
+        <div>
+          <p className="text-sm font-medium text-primary">Painel do restaurante</p>
+          <h1 className="mt-1 text-2xl font-semibold text-black">
+            {mode === 'login' ? 'Entrar' : 'Criar conta'}
+          </h1>
+        </div>
 
-      <form action={action} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          E-mail
-          <input
-            name="email"
-            type="email"
-            required
-            className="rounded border px-3 py-2"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Senha
-          <input
-            name="password"
-            type="password"
-            required
-            minLength={6}
-            className="rounded border px-3 py-2"
-          />
-        </label>
+        <form action={action} className="flex flex-col gap-4">
+          <label className={labelClass}>
+            E-mail
+            <input name="email" type="email" required className={inputClass} />
+          </label>
+          <label className={labelClass}>
+            Senha
+            <input name="password" type="password" required minLength={6} className={inputClass} />
+          </label>
 
-        {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-        {state.info && <p className="text-sm text-green-700">{state.info}</p>}
+          {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+          {state.info && <p className="text-sm text-emerald-600">{state.info}</p>}
 
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded bg-black px-3 py-2 text-white disabled:opacity-50"
+          <Button type="submit" disabled={pending} className="mt-1">
+            {pending ? 'Aguarda...' : mode === 'login' ? 'Entrar' : 'Criar conta'}
+          </Button>
+        </form>
+
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+          className="self-center"
         >
-          {pending ? 'Aguarda...' : mode === 'login' ? 'Entrar' : 'Criar conta'}
-        </button>
-      </form>
-
-      <button
-        type="button"
-        onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
-        className="text-sm underline"
-      >
-        {mode === 'login' ? 'Nao tem conta? Cadastrar' : 'Ja tem conta? Entrar'}
-      </button>
+          {mode === 'login' ? 'Nao tem conta? Cadastrar' : 'Ja tem conta? Entrar'}
+        </Button>
+      </div>
     </main>
   );
 }

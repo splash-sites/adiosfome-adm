@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { deleteProductAction } from './actions';
 import { ProductForm } from './ProductForm';
 import type { Category, Product } from '@/domain/entities/Product';
+import { Button } from '@/components/ui/Button';
+import { cardClass } from '@/components/ui/styles';
 
 export function ProductListItem({
   product,
@@ -19,29 +21,38 @@ export function ProductListItem({
   }
 
   return (
-    <div className="flex items-center justify-between rounded border p-3">
+    <div className={`${cardClass} flex items-center justify-between p-4`}>
       <div className="flex items-center gap-3">
-        {product.imageUrl && (
+        {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.imageUrl} alt="" className="h-12 w-12 rounded object-cover" />
+          <img
+            src={product.imageUrl}
+            alt=""
+            className="h-12 w-12 rounded-lg border border-black/8 object-cover"
+          />
+        ) : (
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-dashed border-black/15 text-[10px] text-black/25">
+            sem foto
+          </div>
         )}
         <div>
-          <p className="font-medium">
-            {product.name} {!product.active && <span className="text-xs text-gray-500">(inativo)</span>}
+          <p className="font-medium text-black">
+            {product.name}{' '}
+            {!product.active && <span className="text-xs font-normal text-black/40">(inativo)</span>}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-black/50">
             {product.variants.map((v) => `${v.name}: R$ ${v.price.toFixed(2)}`).join(' | ')}
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-3 text-sm">
-        <button type="button" onClick={() => setEditing(true)} className="underline">
+      <div className="flex items-center gap-4">
+        <Button type="button" variant="ghost" onClick={() => setEditing(true)}>
           Editar
-        </button>
+        </Button>
         <form action={deleteProductAction.bind(null, product.id)}>
-          <button type="submit" className="text-red-600 underline">
+          <Button type="submit" variant="ghost" className="text-red-600 hover:text-red-700">
             Excluir
-          </button>
+          </Button>
         </form>
       </div>
     </div>

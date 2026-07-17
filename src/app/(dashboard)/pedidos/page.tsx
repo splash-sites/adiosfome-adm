@@ -22,13 +22,5 @@ export default async function PedidosPage() {
     restaurant.id
   );
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold">Pedidos</h1>
-        <p className="text-sm text-gray-600">Chega em tempo real assim que o cliente confirma.</p>
-      </div>
-      <OrdersView restaurantId={restaurant.id} initialOrders={orders} />
-    </div>
-  );
+  return <OrdersView restaurantId={restaurant.id} initialOrders={orders} />;
 }
