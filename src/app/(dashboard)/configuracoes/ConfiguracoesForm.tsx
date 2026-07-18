@@ -10,6 +10,12 @@ const initialState: FormState = { error: null, success: false };
 
 const DAY_LABELS = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
 
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
+  const hours = String(Math.floor(i / 2)).padStart(2, '0');
+  const minutes = i % 2 === 0 ? '00' : '30';
+  return `${hours}:${minutes}`;
+});
+
 type DayRow = { enabled: boolean; opensAt: string; closesAt: string };
 
 function buildInitialDayRows(restaurant: Restaurant): DayRow[] {
@@ -37,56 +43,66 @@ export function ConfiguracoesForm({ restaurant }: { restaurant: Restaurant }) {
   );
 
   return (
-    <form action={action} className={`${cardClass} flex flex-col gap-5 p-6`}>
+    <form action={action} className="flex flex-col gap-6">
       <input type="hidden" name="openingHours" value={openingHoursJson} />
 
-      <label className={labelClass}>
-        Nome do restaurante
-        <input name="name" type="text" required defaultValue={restaurant.name} className={inputClass} />
-      </label>
+      <div className={`${cardClass} flex flex-col gap-5 p-6`}>
+        <p className="text-xs font-semibold uppercase tracking-wide text-black/40">
+          Dados do restaurante
+        </p>
 
-      <label className={labelClass}>
-        Slug (usado na URL do cardapio)
-        <input
-          name="slug"
-          type="text"
-          required
-          pattern="[a-z0-9]+(-[a-z0-9]+)*"
-          defaultValue={restaurant.slug}
-          className={inputClass}
-        />
-      </label>
+        <label className={labelClass}>
+          Nome do restaurante
+          <input name="name" type="text" required defaultValue={restaurant.name} className={inputClass} />
+        </label>
 
-      <label className={labelClass}>
-        Endereco
-        <input name="address" type="text" required defaultValue={restaurant.address} className={inputClass} />
-      </label>
+        <div className="grid grid-cols-2 gap-4">
+          <label className={labelClass}>
+            Slug (usado na URL do cardapio)
+            <input
+              name="slug"
+              type="text"
+              required
+              pattern="[a-z0-9]+(-[a-z0-9]+)*"
+              defaultValue={restaurant.slug}
+              className={inputClass}
+            />
+          </label>
 
-      <label className={labelClass}>
-        Telefone
-        <input name="phone" type="tel" required defaultValue={restaurant.phone} className={inputClass} />
-      </label>
+          <label className={labelClass}>
+            Telefone
+            <input name="phone" type="tel" required defaultValue={restaurant.phone} className={inputClass} />
+          </label>
+        </div>
 
-      <label className={labelClass}>
-        Taxa de entrega (R$)
-        <input
-          name="deliveryFee"
-          type="number"
-          step="0.01"
-          min="0"
-          required
-          defaultValue={restaurant.deliveryFee}
-          className={inputClass}
-        />
-      </label>
+        <label className={labelClass}>
+          Endereco
+          <input name="address" type="text" required defaultValue={restaurant.address} className={inputClass} />
+        </label>
 
-      <div className="flex flex-col gap-2.5 border-t border-black/6 pt-5">
-        <p className="text-sm font-medium text-black/70">Horario de funcionamento</p>
+        <label className={`${labelClass} max-w-[220px]`}>
+          Taxa de entrega (R$)
+          <input
+            name="deliveryFee"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+            defaultValue={restaurant.deliveryFee}
+            className={inputClass}
+          />
+        </label>
+      </div>
+
+      <div className={`${cardClass} flex flex-col gap-3 p-6`}>
+        <p className="text-xs font-semibold uppercase tracking-wide text-black/40">
+          Horario de funcionamento
+        </p>
         {DAY_LABELS.map((label, day) => {
           const row = dayRows[day];
           return (
             <div key={day} className="flex items-center gap-3 text-sm">
-              <label className="flex w-28 items-center gap-2 text-black/70">
+              <label className="flex w-28 shrink-0 items-center gap-2 text-black/70">
                 <input
                   type="checkbox"
                   checked={row.enabled}
@@ -94,21 +110,31 @@ export function ConfiguracoesForm({ restaurant }: { restaurant: Restaurant }) {
                 />
                 {label}
               </label>
-              <input
-                type="time"
+              <select
                 value={row.opensAt}
                 disabled={!row.enabled}
                 onChange={(e) => updateDay(day, 'opensAt', e.target.value)}
                 className={`${inputClass} py-1.5`}
-              />
+              >
+                {TIME_OPTIONS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
               <span className="text-black/40">ate</span>
-              <input
-                type="time"
+              <select
                 value={row.closesAt}
                 disabled={!row.enabled}
                 onChange={(e) => updateDay(day, 'closesAt', e.target.value)}
                 className={`${inputClass} py-1.5`}
-              />
+              >
+                {TIME_OPTIONS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
             </div>
           );
         })}

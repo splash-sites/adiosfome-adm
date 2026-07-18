@@ -27,6 +27,12 @@ export default function LoginPage() {
         </div>
 
         <form action={action} className="flex flex-col gap-4">
+          {mode === 'signup' && (
+            <label className={labelClass}>
+              Nome
+              <input name="name" type="text" required className={inputClass} />
+            </label>
+          )}
           <label className={labelClass}>
             E-mail
             <input name="email" type="email" required className={inputClass} />

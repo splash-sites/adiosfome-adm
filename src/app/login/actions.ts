@@ -20,15 +20,23 @@ export async function login(_prevState: AuthActionState, formData: FormData): Pr
 }
 
 export async function signup(_prevState: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const name = String(formData.get('name') ?? '').trim();
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
 
+  if (!name) {
+    return { error: 'Nome e obrigatorio' };
+  }
   if (password.length < 6) {
     return { error: 'Senha precisa ter pelo menos 6 caracteres' };
   }
 
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { full_name: name } },
+  });
 
   if (error) {
     return { error: error.message };

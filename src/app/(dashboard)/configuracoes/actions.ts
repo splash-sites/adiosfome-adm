@@ -55,3 +55,27 @@ export async function updateRestaurantAction(
   revalidatePath('/', 'layout');
   return { error: null, success: true };
 }
+
+export async function updateProfileAction(
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const name = String(formData.get('name') ?? '').trim();
+  if (!name) {
+    return { error: 'Nome e obrigatorio', success: false };
+  }
+
+  const { error } = await supabase.auth.updateUser({ data: { full_name: name } });
+  if (error) {
+    return { error: error.message, success: false };
+  }
+
+  revalidatePath('/', 'layout');
+  return { error: null, success: true };
+}

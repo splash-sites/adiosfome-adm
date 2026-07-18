@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logout } from './actions';
 
 const NAV_ITEMS = [
   { href: '/pedidos', label: 'Pedidos' },
@@ -19,12 +18,14 @@ export function Sidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col justify-between border-r border-black/8 bg-white px-4 py-6 text-black">
+    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col justify-between overflow-y-auto border-r border-black/8 bg-white px-4 py-6 text-black">
       <div className="flex flex-col gap-8">
         <div className="px-2">
           <p className="text-lg font-semibold leading-tight">{restaurantName}</p>
           <p className="text-sm text-black/40">/{restaurantSlug}</p>
         </div>
+
+        <div className="border-t border-black/8" />
 
         <nav className="flex flex-col gap-1">
           {NAV_ITEMS.map((item) => {
@@ -55,14 +56,6 @@ export function Sidebar({
         >
           Configuracoes
         </Link>
-        <form action={logout}>
-          <button
-            type="submit"
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-black/60 transition hover:bg-black/5 hover:text-black"
-          >
-            Sair
-          </button>
-        </form>
       </div>
     </aside>
   );

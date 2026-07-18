@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/infrastructure/supabase/serverClie
 import { SupabaseRestaurantRepository } from '@/infrastructure/supabase/SupabaseRestaurantRepository';
 import { GetOwnRestaurant } from '@/application/use-cases/GetOwnRestaurant';
 import { ConfiguracoesForm } from './ConfiguracoesForm';
+import { ProfileForm } from './ProfileForm';
 
 export default async function ConfiguracoesPage() {
   const supabase = await createSupabaseServerClient();
@@ -17,11 +18,12 @@ export default async function ConfiguracoesPage() {
   if (!restaurant) redirect('/onboarding');
 
   return (
-    <div className="flex max-w-xl flex-col gap-6">
+    <div className="flex max-w-2xl flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold text-black">Configuracoes</h1>
         <p className="text-sm text-black/50">Dados do restaurante, visiveis no cardapio publico.</p>
       </div>
+      <ProfileForm name={(user.user_metadata?.full_name as string | undefined) ?? ''} />
       <ConfiguracoesForm restaurant={restaurant} />
     </div>
   );
