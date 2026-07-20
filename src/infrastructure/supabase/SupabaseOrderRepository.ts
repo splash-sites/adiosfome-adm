@@ -1,5 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { IOrderRepository } from '../../domain/repositories/IOrderRepository';
+import {
+  IOrderRepository,
+  OrderHistoryFilters,
+  OrderHistoryResult,
+} from '../../domain/repositories/IOrderRepository';
 import { Order, OrderItem, OrderStatus } from '../../domain/entities/Order';
 
 const ORDER_SELECT = `
@@ -95,6 +99,39 @@ export class SupabaseOrderRepository implements IOrderRepository {
   async updateStatus(orderId: string, status: OrderStatus): Promise<void> {
     const { error } = await this.supabase.from('orders').update({ status }).eq('id', orderId);
     if (error) throw error;
+  }
+
+  async findHistory(
+    restaurantId: string,
+    filters: OrderHistoryFilters
+  ): Promise<OrderHistoryResult> {
+    let query = this.supabase
+      .from('orders')
+      .select(ORDER_SELECT, { count: 'exact' })
+      .eq('restaurant_id', restaurantId)
+      .in('status', filters.status ? [filters.status] : ['entregue', 'cancelado'])
+      .order('created_at', { ascending: false });
+
+    if (filters.from) {
+      query = query.gte('created_at', `${filters.from}T00:00:00`);
+    }
+    if (filters.to) {
+      const toExclusive = new Date(`${filters.to}T00:00:00`);
+      toExclusive.setDate(toExclusive.getDate() + 1);
+      query = query.lt('created_at', toExclusive.toISOString());
+    }
+
+    const start = (filters.page - 1) * filters.pageSize;
+    const end = start + filters.pageSize - 1;
+    query = query.range(start, end);
+
+    const { data, error, count } = await query;
+    if (error) throw error;
+
+    return {
+      orders: (data as unknown as OrderRow[]).map(orderToEntity),
+      total: count ?? 0,
+    };
   }
 
   subscribeToNewOrders(restaurantId: string, onNewOrder: (order: Order) => void): () => void {

@@ -32,6 +32,14 @@ export const NEXT_ORDER_STATUS: Record<OrderStatus, OrderStatus | null> = {
   cancelado: null,
 };
 
+export const PREVIOUS_ORDER_STATUS: Record<OrderStatus, OrderStatus | null> = {
+  recebido: null,
+  preparo: 'recebido',
+  saiu_entrega: 'preparo',
+  entregue: 'saiu_entrega',
+  cancelado: null,
+};
+
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   recebido: 'Recebido',
   preparo: 'Em preparo',

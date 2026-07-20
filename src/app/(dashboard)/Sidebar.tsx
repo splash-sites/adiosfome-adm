@@ -6,28 +6,20 @@ import { usePathname } from 'next/navigation';
 const NAV_ITEMS = [
   { href: '/pedidos', label: 'Pedidos' },
   { href: '/produtos', label: 'Produtos' },
+  { href: '/historico', label: 'Historico' },
 ];
 
-export function Sidebar({
-  restaurantName,
-  restaurantSlug,
-}: {
-  restaurantName: string;
-  restaurantSlug: string;
-}) {
+export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col justify-between overflow-y-auto border-r border-black/8 bg-white px-4 py-6 text-black">
-      <div className="flex flex-col gap-8">
-        <div className="px-2">
-          <p className="text-lg font-semibold leading-tight">{restaurantName}</p>
-          <p className="text-sm text-black/40">/{restaurantSlug}</p>
+    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col justify-between overflow-y-auto border-r border-black/8 bg-white text-black">
+      <div className="flex flex-col">
+        <div className="flex h-16 items-center border-b border-black/8 px-6">
+          <p className="text-lg font-semibold leading-none text-primary">AdiosFome</p>
         </div>
 
-        <div className="border-t border-black/8" />
-
-        <nav className="flex flex-col gap-1">
+        <nav className="flex flex-col gap-1 p-4">
           {NAV_ITEMS.map((item) => {
             const active = pathname?.startsWith(item.href);
             return (
@@ -45,7 +37,7 @@ export function Sidebar({
         </nav>
       </div>
 
-      <div className="flex flex-col gap-1 border-t border-black/8 pt-4">
+      <div className="flex flex-col gap-1 border-t border-black/8 p-4">
         <Link
           href="/configuracoes"
           className={`rounded-lg px-3 py-2 text-sm font-medium transition ${

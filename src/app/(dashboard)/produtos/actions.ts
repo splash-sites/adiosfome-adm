@@ -62,12 +62,26 @@ async function requireOwnRestaurant() {
   return { supabase, restaurant };
 }
 
-function parseVariants(raw: FormDataEntryValue | null): { name: string; price: number }[] {
+function friendlyDeleteError(e: unknown, itemLabel: string): string {
+  const err = e as { code?: string; message?: string };
+  if (err?.code === '23503') {
+    return `Nao da pra excluir ${itemLabel} porque ja tem pedidos vinculados. Desative em vez de excluir.`;
+  }
+  return err?.message || 'Erro ao excluir';
+}
+
+function parseVariants(
+  raw: FormDataEntryValue | null
+): { id?: string; name: string; price: number }[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(String(raw));
     if (!Array.isArray(parsed)) return [];
-    return parsed.map((v) => ({ name: String(v.name ?? ''), price: Number(v.price ?? 0) }));
+    return parsed.map((v) => ({
+      id: v.id ? String(v.id) : undefined,
+      name: String(v.name ?? ''),
+      price: Number(v.price ?? 0),
+    }));
   } catch {
     return [];
   }
@@ -94,10 +108,17 @@ export async function createCategoryAction(
   return { error: null };
 }
 
-export async function deleteCategoryAction(categoryId: string): Promise<void> {
+export type DeleteResult = { error: string | null };
+
+export async function deleteCategoryAction(categoryId: string): Promise<DeleteResult> {
   const { supabase } = await requireOwnRestaurant();
-  await new DeleteCategory(new SupabaseProductRepository(supabase)).execute(categoryId);
+  try {
+    await new DeleteCategory(new SupabaseProductRepository(supabase)).execute(categoryId);
+  } catch (e) {
+    return { error: friendlyDeleteError(e, 'essa categoria') };
+  }
   revalidatePath('/produtos');
+  return { error: null };
 }
 
 export async function createProductAction(
@@ -167,8 +188,13 @@ export async function updateProductAction(
   return { error: null };
 }
 
-export async function deleteProductAction(productId: string): Promise<void> {
+export async function deleteProductAction(productId: string): Promise<DeleteResult> {
   const { supabase } = await requireOwnRestaurant();
-  await new DeleteProduct(new SupabaseProductRepository(supabase)).execute(productId);
+  try {
+    await new DeleteProduct(new SupabaseProductRepository(supabase)).execute(productId);
+  } catch (e) {
+    return { error: friendlyDeleteError(e, 'esse produto') };
+  }
   revalidatePath('/produtos');
+  return { error: null };
 }

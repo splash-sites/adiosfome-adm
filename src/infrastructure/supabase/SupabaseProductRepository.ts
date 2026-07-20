@@ -1,5 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { IProductRepository, ProductInput } from '../../domain/repositories/IProductRepository';
+import {
+  IProductRepository,
+  ProductInput,
+  ProductUpdateInput,
+} from '../../domain/repositories/IProductRepository';
 import { Category, Product, ProductVariant } from '../../domain/entities/Product';
 
 type CategoryRow = {
@@ -139,10 +143,7 @@ export class SupabaseProductRepository implements IProductRepository {
     return productToEntity({ ...created, product_variants: variantRows as VariantRow[] });
   }
 
-  async updateProduct(
-    id: string,
-    data: Partial<Omit<ProductInput, 'restaurantId'>>
-  ): Promise<void> {
+  async updateProduct(id: string, data: Partial<ProductUpdateInput>): Promise<void> {
     const payload: Record<string, unknown> = {};
     if (data.categoryId !== undefined) payload.category_id = data.categoryId;
     if (data.name !== undefined) payload.name = data.name;
@@ -156,23 +157,93 @@ export class SupabaseProductRepository implements IProductRepository {
     }
 
     if (data.variants !== undefined) {
-      const { error: deleteError } = await this.supabase
-        .from('product_variants')
-        .delete()
-        .eq('product_id', id);
-      if (deleteError) throw deleteError;
+      await this.syncVariants(id, data.variants);
+    }
+  }
 
-      if (data.variants.length > 0) {
-        const { error: insertError } = await this.supabase.from('product_variants').insert(
-          data.variants.map((v) => ({ product_id: id, name: v.name, price: v.price }))
+  private async syncVariants(
+    productId: string,
+    submitted: { id?: string; name: string; price: number }[]
+  ): Promise<void> {
+    const { data: existingRows, error: fetchError } = await this.supabase
+      .from('product_variants')
+      .select('id')
+      .eq('product_id', productId);
+    if (fetchError) throw fetchError;
+
+    const existingIds = new Set((existingRows as { id: string }[]).map((r) => r.id));
+    const submittedIds = new Set(submitted.filter((v) => v.id).map((v) => v.id));
+    const removedIds = [...existingIds].filter((vid) => !submittedIds.has(vid));
+
+    for (const variantId of removedIds) {
+      const hasActive = await this.hasActiveOrderReferencesForVariant(variantId);
+      if (hasActive) {
+        throw new Error(
+          'Nao da pra remover essa variante porque ela tem pedidos em andamento ou ja finalizados. Desative o produto em vez de remover a variante.'
         );
-        if (insertError) throw insertError;
       }
+    }
+
+    for (const variantId of removedIds) {
+      await this.deleteOrderItemsForVariant(variantId);
+      const { error } = await this.supabase.from('product_variants').delete().eq('id', variantId);
+      if (error) throw error;
+    }
+
+    const toUpdate = submitted.filter((v) => v.id && existingIds.has(v.id));
+    for (const v of toUpdate) {
+      const { error } = await this.supabase
+        .from('product_variants')
+        .update({ name: v.name, price: v.price })
+        .eq('id', v.id as string);
+      if (error) throw error;
+    }
+
+    const toInsert = submitted.filter((v) => !v.id || !existingIds.has(v.id));
+    if (toInsert.length > 0) {
+      const { error } = await this.supabase.from('product_variants').insert(
+        toInsert.map((v) => ({ product_id: productId, name: v.name, price: v.price }))
+      );
+      if (error) throw error;
     }
   }
 
   async deleteProduct(id: string): Promise<void> {
     const { error } = await this.supabase.from('products').delete().eq('id', id);
+    if (error) throw error;
+  }
+
+  async hasActiveOrderReferences(productId: string): Promise<boolean> {
+    const { data, error } = await this.supabase
+      .from('order_items')
+      .select('orders ( status )')
+      .eq('product_id', productId);
+    if (error) throw error;
+
+    return (data as unknown as { orders: { status: string } | null }[]).some(
+      (row) => row.orders?.status !== 'cancelado'
+    );
+  }
+
+  async deleteOrderItemsForProduct(productId: string): Promise<void> {
+    const { error } = await this.supabase.from('order_items').delete().eq('product_id', productId);
+    if (error) throw error;
+  }
+
+  async hasActiveOrderReferencesForVariant(variantId: string): Promise<boolean> {
+    const { data, error } = await this.supabase
+      .from('order_items')
+      .select('orders ( status )')
+      .eq('variant_id', variantId);
+    if (error) throw error;
+
+    return (data as unknown as { orders: { status: string } | null }[]).some(
+      (row) => row.orders?.status !== 'cancelado'
+    );
+  }
+
+  async deleteOrderItemsForVariant(variantId: string): Promise<void> {
+    const { error } = await this.supabase.from('order_items').delete().eq('variant_id', variantId);
     if (error) throw error;
   }
 }

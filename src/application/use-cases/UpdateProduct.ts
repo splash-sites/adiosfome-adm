@@ -1,9 +1,9 @@
-import { IProductRepository, ProductInput } from '../../domain/repositories/IProductRepository';
+import { IProductRepository, ProductUpdateInput } from '../../domain/repositories/IProductRepository';
 
 export class UpdateProduct {
   constructor(private productRepository: IProductRepository) {}
 
-  async execute(id: string, data: Partial<Omit<ProductInput, 'restaurantId'>>): Promise<void> {
+  async execute(id: string, data: Partial<ProductUpdateInput>): Promise<void> {
     if (data.name !== undefined && !data.name.trim()) {
       throw new Error('Nome do produto e obrigatorio');
     }

@@ -1,5 +1,5 @@
 import { IOrderRepository } from '../../domain/repositories/IOrderRepository';
-import { NEXT_ORDER_STATUS, OrderStatus } from '../../domain/entities/Order';
+import { NEXT_ORDER_STATUS, PREVIOUS_ORDER_STATUS, OrderStatus } from '../../domain/entities/Order';
 
 export class UpdateOrderStatus {
   constructor(private orderRepository: IOrderRepository) {}
@@ -9,10 +9,15 @@ export class UpdateOrderStatus {
     if (!order) {
       throw new Error('Pedido nao encontrado');
     }
-    if (order.status === 'entregue' || order.status === 'cancelado') {
-      throw new Error('Pedido ja finalizado, nao da pra mudar o status');
+    if (order.status === 'cancelado') {
+      throw new Error('Pedido cancelado, nao da pra mudar o status');
     }
-    if (newStatus !== 'cancelado' && NEXT_ORDER_STATUS[order.status] !== newStatus) {
+
+    const isForward = NEXT_ORDER_STATUS[order.status] === newStatus;
+    const isBackward = PREVIOUS_ORDER_STATUS[order.status] === newStatus;
+    const isCancel = newStatus === 'cancelado' && order.status === 'recebido';
+
+    if (!isForward && !isBackward && !isCancel) {
       throw new Error('Transicao de status invalida');
     }
 

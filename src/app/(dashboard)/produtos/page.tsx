@@ -8,7 +8,7 @@ import { ListProducts } from '@/application/use-cases/ListProducts';
 import { CategoryForm } from './CategoryForm';
 import { NewProductSection } from './NewProductSection';
 import { ProductListItem } from './ProductListItem';
-import { deleteCategoryAction } from './actions';
+import { DeleteCategoryButton } from './DeleteCategoryButton';
 import { cardClass, pillClass } from '@/components/ui/styles';
 
 export default async function ProdutosPage() {
@@ -45,11 +45,7 @@ export default async function ProdutosPage() {
           {categories.map((c) => (
             <li key={c.id} className={pillClass}>
               {c.name}
-              <form action={deleteCategoryAction.bind(null, c.id)}>
-                <button type="submit" className="text-black/30 hover:text-red-600">
-                  ✕
-                </button>
-              </form>
+              <DeleteCategoryButton categoryId={c.id} />
             </li>
           ))}
         </ul>

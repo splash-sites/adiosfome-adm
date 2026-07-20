@@ -8,7 +8,7 @@ import { cardClass, inputClass, labelClass } from '@/components/ui/styles';
 
 const initialState: FormState = { error: null };
 
-type VariantRow = { name: string; price: string };
+type VariantRow = { id?: string; name: string; price: string };
 
 export function ProductForm({
   categories,
@@ -24,7 +24,7 @@ export function ProductForm({
   const [state, formAction, pending] = useActionState(action, initialState);
   const [variants, setVariants] = useState<VariantRow[]>(
     product && product.variants.length > 0
-      ? product.variants.map((v) => ({ name: v.name, price: String(v.price) }))
+      ? product.variants.map((v) => ({ id: v.id, name: v.name, price: String(v.price) }))
       : [{ name: '', price: '' }]
   );
 
@@ -37,7 +37,7 @@ export function ProductForm({
     setVariants((prev) => prev.filter((_, i) => i !== index));
 
   const variantsJson = JSON.stringify(
-    variants.map((v) => ({ name: v.name, price: Number(v.price) || 0 }))
+    variants.map((v) => ({ id: v.id, name: v.name, price: Number(v.price) || 0 }))
   );
 
   const submittedRef = useRef(false);

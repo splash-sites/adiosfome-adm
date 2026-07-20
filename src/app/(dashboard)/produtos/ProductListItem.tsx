@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { deleteProductAction } from './actions';
 import { ProductForm } from './ProductForm';
 import type { Category, Product } from '@/domain/entities/Product';
@@ -15,6 +16,18 @@ export function ProductListItem({
   categories: Category[];
 }) {
   const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    setDeleting(true);
+    const result = await deleteProductAction(product.id);
+    setDeleting(false);
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success('Produto excluido com sucesso');
+    }
+  }
 
   if (editing) {
     return <ProductForm categories={categories} product={product} onDone={() => setEditing(false)} />;
@@ -49,11 +62,15 @@ export function ProductListItem({
         <Button type="button" variant="ghost" onClick={() => setEditing(true)}>
           Editar
         </Button>
-        <form action={deleteProductAction.bind(null, product.id)}>
-          <Button type="submit" variant="ghost" className="text-red-600 hover:text-red-700">
-            Excluir
-          </Button>
-        </form>
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={deleting}
+          onClick={handleDelete}
+          className="text-red-600 hover:text-red-700"
+        >
+          {deleting ? 'Excluindo...' : 'Excluir'}
+        </Button>
       </div>
     </div>
   );

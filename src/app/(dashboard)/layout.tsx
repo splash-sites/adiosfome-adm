@@ -26,9 +26,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex min-h-screen bg-[#f7f7fb]">
-      <Sidebar restaurantName={restaurant.name} restaurantSlug={restaurant.slug} />
+      <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-end border-b border-black/8 bg-white px-8 py-4">
+        <header className="flex h-16 items-center justify-end border-b border-black/8 bg-white px-8">
           <UserMenu displayName={displayName} />
         </header>
         <main className="flex-1 overflow-x-hidden px-8 py-8">{children}</main>
